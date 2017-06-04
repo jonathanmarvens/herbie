@@ -151,7 +151,7 @@
           (let loop ([rest-children children] [done-children '()])
             (if (null? rest-children) #t
                 (let ([next-child (car children)])
-                  (match (remove-loop! pred next-child)
+                  (match (remove-loop! next-child)
                     [#t (loop (cdr rest-children) (cons next-child done-children))]
                     [#f (set-enode-children! en (append (cdr rest-children) done-children))
                         en]
