@@ -176,7 +176,7 @@
 
 (define (prepare-points-period prog periods)
   (let* ([pts (make-period-points (*num-points*) periods)]
-	 [exacts (make-exacts prog pts)]
+         [exacts (make-exacts prog pts #t)]
 	 [pts* (filter-points pts exacts)]
 	 [exacts* (filter-exacts pts exacts)])
     (mk-pcontext pts* exacts*)))
