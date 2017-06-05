@@ -7,6 +7,12 @@
 (module+ test
  (require rackunit))
 
+;; An interval represents the mathematical concept of the same name.
+;;
+;; It consists of lower and upper bounds, together with booleans
+;; specifying whether each endpoint is closed (#t) or open (#f) (ie,
+;; exclusive or inclusive).
+;;
 ;; NOTE: an interval can also be #f for an empty interval
 (struct interval (l u l? u?) #:transparent)
 
@@ -105,6 +111,7 @@
   (check-equal? (interval-invert (interval 1 2 #t #f)) (interval -inf.0 +inf.0 #f #f))
   (check-equal? (interval-invert #f) (interval -inf.0 +inf.0 #f #f)))
 
+;; A range table is a mapping from variables to intervals.
 (define (make-range-table x intvl)
   (make-hash (list (cons x intvl))))
 
