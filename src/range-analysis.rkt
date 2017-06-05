@@ -224,6 +224,8 @@
      (make-empty-range-table)]
     [`(>= ,(? variable? var) ,(? number? num))
      (make-range-table var (make-interval num +inf.0 #t #f))]
+    [`(< (fabs (- ,(? variable? var1) ,(? variable? var2))) ,(? number? num))
+     (make-range-table var2 (interval `(- ,var1 ,num) `(+ ,var1 ,num) #f #f))]
 
     [(list (and (or '< '<= '== '>= '>) cmp) _ (? number? num)) (make-empty-range-table)]
 
