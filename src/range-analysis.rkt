@@ -217,6 +217,9 @@
      (make-empty-range-table)]
     [`(>= ,(? variable? var) ,(? number? num))
      (make-range-table var (make-interval num +inf.0 #t #f))]
+
+    [(list (and (or '< '<= '== '>= '>) cmp) _ (? number? num)) (make-empty-range-table)]
+
     [(list (and (or '< '<= '== '>= '>) cmp) (? number? num) var) ; don't check for variable? here b/c fabs
      (condition->range-table (list (flip-cmp cmp) var num))]
     [(list (and (or '< '<= '> '>=) cmp) exprs ...)
