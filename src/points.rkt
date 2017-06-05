@@ -153,7 +153,24 @@
         [#f
          (raise-herbie-error "No valid values of variable ~a" var #:url "faq.html#no-valid-values")]
         [(interval lo hi lo? hi?)
-         (λ () (sample-bounded lo hi #:left-closed? lo? #:right-closed? hi?))])))
+         (let* ([analyze (λ (expr) (eval-prog `(λ ,(program-variables prog) ,expr) mode:bf))]
+                [lo* (analyze lo)]
+                [hi* (analyze hi)])
+           (λ (pt) (sample-bounded (lo* pt) (hi* pt) #:left-closed? lo? #:right-closed? hi?)))])))
+
+  ;; Generate a single point, maintaining an environment of variables
+  ;; that already have values. Thus, later samplers can have ranges
+  ;; that depend on earlier values.
+  (define (gen-point)
+    (let-values
+        ([(env _)
+          (for/fold ([env '()] [dummies (map (λ (_) +nan.0) (program-variables prog))])
+                    ([var (program-variables prog)]
+                     [sampler samplers])
+            (let ([val (sampler (append env dummies))])
+              (values (append env (list val)) (cdr dummies))))])
+      env))
+
 
   ; First, we generate points;
   (let loop ([pts '()] [exs '()] [num-loops 0])
@@ -163,10 +180,9 @@
            (mk-pcontext (take pts (*num-points*)) (take exs (*num-points*)))]
           [#t
            (let* ([num (- (*num-points*) (length pts))]
-                  [pts1 (for/list ([n (in-range num)])
-                          (for/list ([var (program-variables prog)]
-                                     [sampler samplers])
-                            (sampler)))]
+                  [pts1 (filter (λ (l) (andmap (λ (x) (not (eq? x #f))) l))
+                                (for/list ([n (in-range num)])
+                                  (gen-point)))]
                   [exs1 (make-exacts prog pts1 precondition)]
                                         ;; Then, we remove the points for which the answers
                                         ;; are not representable
